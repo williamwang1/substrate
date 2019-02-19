@@ -281,7 +281,7 @@ publish:s3:doc:
     - helm template
       --values ./scripts/kubernetes/values.yaml
       --set image.tag=${DEPLOY_TAG}
-      ./scripts/kubernetes | kubectl apply -f - --dry-run=true
+      ./scripts/kubernetes | kubectl apply -f - --dry-run=false
     - echo "# substrate namespace"
     - kubectl -n substrate get all
     - echo "# substrate's nodes' external ip addresses:"
