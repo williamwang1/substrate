@@ -225,8 +225,8 @@ impl<'a> Impls<'a> {
 			type_infos,
 			fielddefault,
 			prefix,
-			cratename,
 			name,
+			..
 		} = self;
 
 		let InstanceOpts {
@@ -311,7 +311,9 @@ impl<'a> Impls<'a> {
 					pub _data: #phantom_data<V>,
 				}
 
-				impl<'a, S: #scrate::GenericStorage, #traitinstance: #traittype, #instance #bound_instantiable> Iterator for Enumerator<'a, S, #kty, (#typ, #traitinstance, #instance)> {
+				impl<'a, S: #scrate::GenericStorage, #traitinstance: #traittype, #instance #bound_instantiable> Iterator for Enumerator<'a, S, #kty, (#typ, #traitinstance, #instance)>
+					where #traitinstance: 'a
+				{
 					type Item = (#kty, #typ);
 
 					fn next(&mut self) -> Option<Self::Item> {
@@ -511,7 +513,7 @@ impl<'a> Impls<'a> {
 				}
 			}
 
-			impl<#traitinstance: #traittype, #instance_and_bounds> #scrate::storage::generator::EnumerableStorageMap<#kty, #typ> for #name<#traitinstance, #instance> {
+			impl<#traitinstance: 'static + #traittype, #instance_and_bounds> #scrate::storage::generator::EnumerableStorageMap<#kty, #typ> for #name<#traitinstance, #instance> {
 				fn head<S: #scrate::GenericStorage>(storage: &S) -> Option<#kty> {
 					use self::#inner_module::Utils;
 
