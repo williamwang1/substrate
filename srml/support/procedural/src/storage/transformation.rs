@@ -485,7 +485,6 @@ fn decl_storage_items(
 				}
 			});
 
-			// TODO TODO: maybe factorize but actually fine.
 			if let DeclStorageTypeInfosKind::Map { is_linked: true, .. } = type_infos.kind {
 				let method_name = syn::Ident::new(&format!("build_head_key_once_for_{}", name.to_string()), proc_macro2::Span::call_site());
 

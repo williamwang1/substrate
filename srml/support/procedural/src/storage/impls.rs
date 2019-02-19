@@ -80,7 +80,6 @@ impl<'a> Impls<'a> {
 			..
 		} = instance_opts;
 
-		// TODO TODO: factorize
 		let final_prefix = if let Some(instance) = instance {
 			let method_name = syn::Ident::new(&format!("build_prefix_once_for_{}", name.to_string()), proc_macro2::Span::call_site());
 			quote!{ #instance::#method_name(#prefix.as_bytes()) }
@@ -163,7 +162,6 @@ impl<'a> Impls<'a> {
 			..
 		} = instance_opts;
 
-		// TODO TODO: factorize
 		let final_prefix = if let Some(instance) = instance {
 			let method_name = syn::Ident::new(&format!("build_prefix_once_for_{}", name.to_string()), proc_macro2::Span::call_site());
 			quote!{ #instance::#method_name(#prefix.as_bytes()) }
