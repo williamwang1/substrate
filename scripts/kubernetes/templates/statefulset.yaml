@@ -42,6 +42,7 @@ spec:
                     - substrate
               topologyKey: "kubernetes.io/hostname"
       terminationGracePeriodSeconds: 300
+      {{- if .Values.validator.secrets }}
       initContainers:
       - name: prepare-secrets
         image: busybox
@@ -57,7 +58,6 @@ spec:
             valueFrom:
               fieldRef:
                 fieldPath: metadata.name
-          {{- if .Values.validator.secrets }}
           # add all of the secrets to the environment and pick the ones for 
           # that node in order to get them to the right pod of the statefulset
           {{- range $node, $keys := .Values.validator.secrets }}
@@ -72,6 +72,7 @@ spec:
         volumeMounts:
         - name: substratedir
           mountPath: {{ .Values.image.basepath }}
+      {{- end }}
       containers:
       - name: substratepod
         imagePullPolicy: "{{ .Values.image.pullPolicy }}"
