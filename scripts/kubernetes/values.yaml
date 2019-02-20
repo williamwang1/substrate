@@ -46,11 +46,11 @@ validator:
   # experienced before
   secrets:
     substrate-0:
-      key: dGVzdGtleTA=
-      node-key: dGVzdG5vZGVrZXkw
+      key: parity_substrate_validator-0
+      node-key: a6903177fb9919c44c897e565099cf3d57fbfb41a5aa33ee102d9c81438f4560
     substrate-1:
-      key: dGVzdGtleTE=
-      node-key: dGVzdG5vZGVrZXkx
+      key: parity_substrate_validator-1
+      node-key: 2a5f8c2beda2f91520d40b8b91b987d59fbf54db0f0c5d738e8582eca691f3e0
 
 
 # maybe adopt resource limits here to the nodes of the pool
