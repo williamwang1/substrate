@@ -11,7 +11,7 @@ spec:
   serviceName: substrate
   replicas: {{ .Values.nodes.replicas }}
   updateStrategy:
-    type: RollingUpdate
+    type: Recreate
   podManagementPolicy: Parallel
   template:
     metadata:
@@ -42,6 +42,36 @@ spec:
                     - substrate
               topologyKey: "kubernetes.io/hostname"
       terminationGracePeriodSeconds: 300
+      initContainers:
+      - name: prepare-secrets
+        image: busybox
+        command: [ "/bin/sh" ]
+        args:
+          - -c
+          - echo $(eval $(POD_NAME)-key) > {{ .Values.image.basepath }}/key;
+            echo $(eval $(POD_NAME)-node-key) > {{ .Values.image.basepath }}/node-key
+        env:
+          # from (workaround for hostname)
+          # https://kubernetes.io/docs/tasks/inject-data-application/environment-variable-expose-pod-information/
+          - name: POD_NAME
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.name
+          {{- if .Values.validator.secrets }}
+          # add all of the secrets to the environment and pick the ones for 
+          # that node in order to get them to the right pod of the statefulset
+          {{- range $node, $keys := .Values.validator.secrets }}
+          {{- range $keytype, $value := $keys }}
+          - name: {{ $node }}-{{ $keytype }}
+            valueFrom:
+              secretKeyRef:
+                name: substrate-secrets
+                key: {{ $node }}-{{ $keytype }}
+          {{- end }}
+          {{- end }}
+        volumeMounts:
+        - name: substratedir
+          mountPath: {{ .Values.image.basepath }}
       containers:
       - name: substratepod
         imagePullPolicy: "{{ .Values.image.pullPolicy }}"
@@ -59,45 +89,25 @@ spec:
           name: http-rpc
         - containerPort: 9944
           name: websocket-rpc
+        command: ["/bin/sh"]
         args:
-          - --base-path
-          - {{ .Values.image.basepath }}
-          - --name
-          - $(POD_NAME)
-        {{- if .Values.validator.enable }}
-          - --validator
-        {{- end }}
-        {{- if .Values.validator.secrets }}
-          - --key
-          - $(SUBSTRATE_KEY)
-          - --node-key
-          - $(SUBSTRATE_NODE_KEY)
-        {{- end }}
-        {{- range .Values.nodes.args }}
-          - {{ . }}
-        {{- end }}
+          - -c
+          - exec /usr/local/bin/substrate
+            --base-path {{ .Values.image.basepath }}
+            --name $(POD_NAME)
+            {{- if .Values.validator.enable }}
+            --validator
+            {{- end }}
+            {{- if .Values.validator.secrets }}
+            --key $(cat {{ .Values.image.basepath }}/key)
+            --node-key $(cat {{ .Values.image.basepath }}/node-key)
+            {{- end }}
+            {{- range .Values.nodes.args }} {{ . }} {{- end }}
         env:
-          # from (workaround for hostname)
-          # https://kubernetes.io/docs/tasks/inject-data-application/environment-variable-expose-pod-information/
           - name: POD_NAME
             valueFrom:
               fieldRef:
                 fieldPath: metadata.name
-          # maybe
-          # - name: POD_KEY
-          #   value: "$(POD_NAME)-key"
-          {{- if .Values.validator.secrets }}
-          - name: SUBSTRATE_KEY
-            valueFrom:
-              secretKeyRef:
-                name: substrate-secrets
-                key: keys.$(POD_NAME)
-          - name: SUBSTRATE_NODE_KEY
-            valueFrom:
-              secretKeyRef:
-                name: substrate-secrets
-                key: node-keys.$(POD_NAME)
-          {{- end }}
         volumeMounts:
         - name: substratedir
           mountPath: {{ .Values.image.basepath }}
