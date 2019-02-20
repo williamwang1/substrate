@@ -11,7 +11,7 @@ spec:
   serviceName: substrate
   replicas: {{ .Values.nodes.replicas }}
   updateStrategy:
-    type: Recreate
+    type: RollingUpdate
   podManagementPolicy: Parallel
   template:
     metadata:
