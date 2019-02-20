@@ -43,14 +43,18 @@ spec:
               topologyKey: "kubernetes.io/hostname"
       terminationGracePeriodSeconds: 300
       {{- if .Values.validator.secrets }}
+      volumes:
+        - name: substrate-secrets
+          secret:
+            secretName: secrets
       initContainers:
       - name: prepare-secrets
         image: busybox
         command: [ "/bin/sh" ]
         args:
           - -c
-          - echo $(eval $(POD_NAME)-key) > {{ .Values.image.basepath }}/key;
-            echo $(eval $(POD_NAME)-node-key) > {{ .Values.image.basepath }}/node-key
+          - sed -n -r "s/^${POD_NAME}-key ([^ ]+)$/\1/p" > {{ .Values.image.basepath }}/key;
+            sed -n -r "s/^${POD_NAME}-node-key ([^ ]+)$/\1/p" > {{ .Values.image.basepath }}/node-key
         env:
           # from (workaround for hostname)
           # https://kubernetes.io/docs/tasks/inject-data-application/environment-variable-expose-pod-information/
@@ -58,23 +62,15 @@ spec:
             valueFrom:
               fieldRef:
                 fieldPath: metadata.name
-          # add all of the secrets to the environment and pick the ones for 
-          # that node in order to get them to the right pod of the statefulset
-          {{- range $node, $keys := .Values.validator.secrets }}
-          {{- range $keytype, $value := $keys }}
-          - name: {{ $node }}-{{ $keytype }}
-            valueFrom:
-              secretKeyRef:
-                name: substrate-secrets
-                key: {{ $node }}-{{ $keytype }}
-          {{- end }}
-          {{- end }}
         volumeMounts:
+        - name: secret-volume
+          readOnly: true
+          mountPath: "/etc/secrets"
         - name: substratedir
           mountPath: {{ .Values.image.basepath }}
       {{- end }}
       containers:
-      - name: substratepod
+      - name: substrate
         imagePullPolicy: "{{ .Values.image.pullPolicy }}"
         image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
         {{- if .Values.resources }}
