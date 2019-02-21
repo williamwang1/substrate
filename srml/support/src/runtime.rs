@@ -390,7 +390,7 @@ macro_rules! __create_decl_macro {
 			(
 				$runtime:ident;
 				$d( $name:ident : $module:ident::{
-					$d( $modules:ident $d( <$modules_generic:ident> )* ),*
+					$d( $modules:ident $d( <$modules_generic:ident $d(, $modules_instance:path)?> )* ),*
 				}),*
 			) => {
 				$d crate::$macro_name!(@inner
@@ -399,7 +399,7 @@ macro_rules! __create_decl_macro {
 					;
 					$d(
 						$name: $module::{
-							$d( $modules $d( <$modules_generic> )* ),*
+							$d( $modules $d( <$modules_generic $d(, $modules_instance)?> )* ),*
 						}
 					),*;
 				);
@@ -407,21 +407,21 @@ macro_rules! __create_decl_macro {
 			(@inner
 				$runtime:ident;
 				; // there can not be multiple `System`s
-				$d( $parsed_modules:ident $d( <$parsed_generic:ident> )* ),*;
+				$d( $parsed_modules:ident $d( <$parsed_generic:ident $d(, $parsed_instance:path)?> )* ),*;
 				System: $module:ident::{
-					$ingore:ident $d( <$ignor:ident> )* $d(, $modules:ident $d( <$modules_generic:ident> )* )*
+					$d( $modules:ident $d( <$modules_generic:ident $d(, $modules_instance:path)?> )* ),*
 				}
 				$d(, $rest_name:ident : $rest_module:ident::{
-					$d( $rest_modules:ident $d( <$rest_modules_generic:ident> )* ),*
+					$d( $rest_modules:ident $d( <$rest_modules_generic:ident $d(, $rest_modules_instance:path)?> )* ),*
 				})*;
 			) => {
 				$d crate::$macro_name!(@inner
 					$runtime;
 					$module;
-					$d( $parsed_modules $d( <$parsed_generic> )* ),*;
+					$d( $parsed_modules $d( <$parsed_generic $d(, $parsed_instance)?> )* ),*;
 					$d(
 						$rest_name: $rest_module::{
-							$d( $rest_modules $d( <$rest_modules_generic> )* ),*
+							$d( $rest_modules $d( <$rest_modules_generic $d(, $rest_modules_instance)?> )* ),*
 						}
 					),*;
 				);
@@ -429,23 +429,23 @@ macro_rules! __create_decl_macro {
 			(@inner
 				$runtime:ident;
 				$d( $system:ident )*;
-				$d( $parsed_modules:ident $d( <$parsed_generic:ident> )* ),*;
+				$d( $parsed_modules:ident $d( <$parsed_generic:ident $d(, $parsed_instance:path)?> )* ),*;
 				$name:ident: $module:ident::{
-					$macro_enum_name $d( <$event_gen:ident> )* $d(, $modules:ident $d( <$modules_generic:ident> )* )*
+					$macro_enum_name $d( <$event_generic:ident $d(, $event_instance:path)?> )* $d(, $modules:ident $d( <$modules_generic:ident $d(, $modules_instance:path)?> )* )*
 				}
 				$d(, $rest_name:ident : $rest_module:ident::{
-					$d( $rest_modules:ident $d( <$rest_modules_generic:ident> )* ),*
+					$d( $rest_modules:ident $d( <$rest_modules_generic:ident $d(, $rest_modules_instance:path)?> )* ),*
 				})*;
 			) => {
 				$d crate::$macro_name!(@inner
 					$runtime;
 					$d( $system )*;
 					$d(
-						$parsed_modules $d( <$parsed_generic> )* , )*
-						$module $d( <$event_gen> )*;
+						$parsed_modules $d( <$parsed_generic $d(, $parsed_instance)?> )* , )*
+						$module $d( <$event_generic $d(, $event_instance)?> )*;
 					$d(
 						$rest_name: $rest_module::{
-							$d( $rest_modules $d( <$rest_modules_generic> )* ),*
+							$d( $rest_modules $d( <$rest_modules_generic $d(, $rest_modules_instance)?> )* ),*
 						}
 					),*;
 				);
@@ -453,22 +453,22 @@ macro_rules! __create_decl_macro {
 			(@inner
 				$runtime:ident;
 				$d( $system:ident )*;
-				$d( $parsed_modules:ident $d( <$parsed_generic:ident> )* ),*;
+				$d( $parsed_modules:ident $d( <$parsed_generic:ident $d(, $parsed_instance:path)?> )* ),*;
 				$name:ident: $module:ident::{
-					$ingore:ident $d( <$ignor:ident> )* $d(, $modules:ident $d( <$modules_generic:ident> )* )*
+					$ingore:ident $d( <$ignor:ident $d(, $ignore_instance:path)?> )* $d(, $modules:ident $d( <$modules_generic:ident $d(, $modules_instance:path)?> )* )*
 				}
 				$d(, $rest_name:ident : $rest_module:ident::{
-					$d( $rest_modules:ident $d( <$rest_modules_generic:ident> )* ),*
+					$d( $rest_modules:ident $d( <$rest_modules_generic:ident $d(, $rest_modules_instance:path)?> )* ),*
 				})*;
 			) => {
 				$d crate::$macro_name!(@inner
 					$runtime;
 					$d( $system )*;
-					$d( $parsed_modules $d( <$parsed_generic> )* ),*;
-					$name: $module::{ $d( $modules $d( <$modules_generic> )* ),* }
+					$d( $parsed_modules $d( <$parsed_generic $d(, $parsed_instance)?> )* ),*;
+					$name: $module::{ $d( $modules $d( <$modules_generic $d(, $modules_instance)?> )* ),* }
 					$d(
 						, $rest_name: $rest_module::{
-							$d( $rest_modules $d( <$rest_modules_generic> )* ),*
+							$d( $rest_modules $d( <$rest_modules_generic $d(, $rest_modules_instance)?> )* ),*
 						}
 					)*;
 				);
@@ -476,19 +476,19 @@ macro_rules! __create_decl_macro {
 			(@inner
 				$runtime:ident;
 				$d( $system:ident )*;
-				$d( $parsed_modules:ident $d( <$parsed_generic:ident> )* ),*;
+				$d( $parsed_modules:ident $d( <$parsed_generic:ident $d(, $parsed_instance:path)?> )* ),*;
 				$name:ident: $module:ident::{}
 				$d(, $rest_name:ident : $rest_module:ident::{
-					$d( $rest_modules:ident $d( <$rest_modules_generic:ident> )* ),*
+					$d( $rest_modules:ident $d( <$rest_modules_generic:ident $d(, $rest_modules_instance:path)?> )* ),*
 				})*;
 			) => {
 				$d crate::$macro_name!(@inner
 					$runtime;
 					$d( $system )*;
-					$d( $parsed_modules $d( <$parsed_generic> )* ),*;
+					$d( $parsed_modules $d( <$parsed_generic $d(, $parsed_instance)?> )* ),*;
 					$d(
 						$rest_name: $rest_module::{
-							$d( $rest_modules $d( <$rest_modules_generic> )* ),*
+							$d( $rest_modules $d( <$rest_modules_generic $d(, $rest_modules_instance)?> )* ),*
 						}
 					),*;
 				);
@@ -496,13 +496,13 @@ macro_rules! __create_decl_macro {
 			(@inner
 				$runtime:ident;
 				$d( $system:ident )+;
-				$d( $parsed_modules:ident $d( <$parsed_generic:ident> )* ),*;
+				$d( $parsed_modules:ident $d( <$parsed_generic:ident $d(, $parsed_instance:path)?> )* ),*;
 				;
 			) => {
 				$d crate::$macro_outer_name! {
 					pub enum $macro_enum_name for $runtime where system = $d( $system )* {
 						$d(
-							$parsed_modules $d( <$parsed_generic> )*,
+							$parsed_modules $d( <$parsed_generic $d(, $parsed_instance)?> )*,
 						)*
 					}
 				}

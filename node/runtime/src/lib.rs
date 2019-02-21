@@ -99,6 +99,14 @@ impl indices::Trait for Runtime {
 	type Event = Event;
 }
 
+impl balances::Trait<balances::Instance1> for Runtime {
+	type Balance = Balance;
+	type OnFreeBalanceZero = ((Staking, Contract), Democracy);
+	type OnNewAccount = Indices;
+	type EnsureAccountLiquid = (Staking, Democracy);
+	type Event = Event;
+}
+
 impl balances::Trait for Runtime {
 	type Balance = Balance;
 	type OnFreeBalanceZero = ((Staking, Contract), Democracy);
@@ -192,6 +200,8 @@ impl grandpa::Trait for Runtime {
 	type Event = Event;
 }
 
+use balances as balances1;
+
 construct_runtime!(
 	pub enum Runtime with Log(InternalLog: DigestItem<Hash, SessionKey>) where
 		Block = Block,
@@ -216,6 +226,7 @@ construct_runtime!(
 		Contract: contract::{Module, Call, Storage, Config<T>, Event<T>},
 		Sudo: sudo,
 		Fees: fees::{Module, Storage, Config<T>, Event<T>},
+		Balances: balances1::{Event<T, balances::Instance1>},
 	}
 );
 

@@ -242,20 +242,23 @@ macro_rules! __decl_generic_event {
 		{ $( $events:tt )* };
 		{ ,$( $generic_param:ident = $generic_type:ty ),* };
 	) => {
-		pub type Event<$event_generic_param $(, $instance $( = $event_default_instance)? )?> = RawEvent<$( $generic_type ),*>;
+		// TODO TODO: is raw event in balance the right one ? or does it always send raw event of
+		// default instance: to test it maybe use not default one to try
+		pub type Event<$event_generic_param $(, $instance $( = $event_default_instance)? )?> = RawEvent<$( $generic_type ),* $(, $instance)? >;
 		// Workaround for https://github.com/rust-lang/rust/issues/26925 . Remove when sorted.
 		#[derive(Clone, PartialEq, Eq, $crate::parity_codec_derive::Encode, $crate::parity_codec_derive::Decode)]
 		#[cfg_attr(feature = "std", derive(Debug))]
 		$(#[$attr])*
-		pub enum RawEvent<$( $generic_param ),*> {
+		pub enum RawEvent<$( $generic_param ),* $(, $instance)? > {
+			$(PhantomData(std::marker::PhantomData<$instance>),)?
 			$(
 				$events
 			)*
 		}
-		impl<$( $generic_param ),*> From<RawEvent<$( $generic_param ),*>> for () {
-			fn from(_: RawEvent<$( $generic_param ),*>) -> () { () }
+		impl<$( $generic_param ),* $(, $instance)? > From<RawEvent<$( $generic_param ),* $(, $instance)?>> for () {
+			fn from(_: RawEvent<$( $generic_param ),* $(, $instance)?>) -> () { () }
 		}
-		impl<$( $generic_param ),*> RawEvent<$( $generic_param ),*> {
+		impl<$( $generic_param ),* $(, $instance)?> RawEvent<$( $generic_param ),* $(, $instance)?> {
 			#[allow(dead_code)]
 			pub fn metadata() -> &'static [$crate::event::EventMetadata] {
 				$crate::__events_to_metadata!(; $( $events )* )

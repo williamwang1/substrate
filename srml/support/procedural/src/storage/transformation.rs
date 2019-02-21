@@ -521,7 +521,9 @@ fn decl_storage_items(
 			let struct_ident = syn::Ident::new(&format!("Instance{}", i), proc_macro2::Span::call_site());
 
 			impls.extend(quote! {
-				#[derive(Clone, Eq, PartialEq)]
+				// TODO TODO: Debug because of false bound in raw event, also see compilation on
+				// nostd
+				#[derive(Clone, Eq, PartialEq, Debug, #scrate::parity_codec_derive::Encode, #scrate::parity_codec_derive::Decode)]
 				pub struct #struct_ident;
 				impl #instantiable for #struct_ident {
 					const PREFIX: &'static str = "";
