@@ -200,7 +200,8 @@ impl grandpa::Trait for Runtime {
 	type Event = Event;
 }
 
-use balances as balances1;
+// TODO TODO: solve it by adding the path
+use balances::Instance1 as BalanceInstance1;
 
 construct_runtime!(
 	pub enum Runtime with Log(InternalLog: DigestItem<Hash, SessionKey>) where
@@ -226,7 +227,7 @@ construct_runtime!(
 		Contract: contract::{Module, Call, Storage, Config<T>, Event<T>},
 		Sudo: sudo,
 		Fees: fees::{Module, Storage, Config<T>, Event<T>},
-		Balances: balances1::{Event<T, balances::Instance1>},
+		BalancesInstance1: balances::{Module<T, BalanceInstance1>, Call<T, BalanceInstance1>, Config<T, BalanceInstance1>, Event<T, BalanceInstance1>},
 	}
 );
 
