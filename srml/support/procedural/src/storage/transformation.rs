@@ -509,9 +509,13 @@ fn decl_storage_items(
 				const PREFIX: &'static str;
 				#method_defs
 			}
-
-			pub type #default_instance = Instance0;
 		});
+
+		if let Some(default_instance) = default_instance {
+			impls.extend(quote! {
+				pub type #default_instance = Instance0;
+			});
+		}
 
 		for i in 0..NUMBER_OF_INSTANCE {
 			let struct_ident = syn::Ident::new(&format!("Instance{}", i), proc_macro2::Span::call_site());
@@ -836,20 +840,26 @@ fn get_instance_opts(
 	let right_syntax = "Should be $Instance: $Instantiable = $DefaultInstance";
 
 	match (instance, instantiable, default_instance) {
-		(Some(instance), Some(instantiable), Some(default_instance)) => {
+		(Some(instance), Some(instantiable), default_instance_def) => {
+			let (equal_default_instance, default_instance) = if let Some(default_instance) = default_instance_def {
+				(quote!{= #default_instance}, Some(default_instance))
+			} else {
+				(quote!{}, None)
+			};
 			Ok(InstanceOpts {
 				comma_instance: quote!{, #instance},
-				equal_default_instance: quote!{= #default_instance},
+				equal_default_instance,
 				bound_instantiable: quote!{: #instantiable},
 				instance_and_bounds: quote!{#instance: 'static + #instantiable},
 				instance: Some(instance),
-				default_instance: Some(default_instance),
+				default_instance,
 				instantiable: Some(instantiable),
 			})
 		},
 		(None, None, None) => Ok(Default::default()),
 		(Some(instance), None, _) => Err(syn::Error::new(instance.span(), format!("Expect instantiable trait bound for instance: {}. {}", instance, right_syntax))),
-		(Some(instance), _, None) => Err(syn::Error::new(instance.span(), format!("Expect default instance type for instance: {}. {}", instance, right_syntax))),
+		// TODO TODO: delete.
+		// (Some(instance), _, None) => Err(syn::Error::new(instance.span(), format!("Expect default instance type for instance: {}. {}", instance, right_syntax))),
 		(None, Some(instantiable), _) => Err(syn::Error::new(instantiable.span(), format!("Expect instance generic for bound instantiable: {}. {}", instantiable, right_syntax))),
 		(None, _, Some(default_instance)) => Err(syn::Error::new(default_instance.span(), format!("Expect instance generic for default instance: {}. {}", default_instance, right_syntax))),
 	}

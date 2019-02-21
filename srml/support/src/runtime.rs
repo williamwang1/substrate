@@ -98,7 +98,7 @@ macro_rules! construct_runtime {
 			$expanded_name:ident: $expanded_module:ident::{
 				$(
 					$expanded_modules:ident
-						$( <$expanded_modules_generic:ident> )*
+						$( <$expanded_modules_generic:ident $(, $expanded_modules_instance:path)?> )*
 						$( ( $( $expanded_modules_args:ident ),* ) )*
 				),*
 			}
@@ -109,7 +109,7 @@ macro_rules! construct_runtime {
 				::{
 					$(
 						$rest_modules:ident
-							$( <$rest_modules_generic:ident> )*
+							$( <$rest_modules_generic:ident $(, $rest_modules_instance:path)?> )*
 							$( ( $( $rest_modules_args:ident ),* ) )*
 					),*
 				}
@@ -126,7 +126,7 @@ macro_rules! construct_runtime {
 				$expanded_name: $expanded_module::{
 					$(
 						$expanded_modules
-							$( <$expanded_modules_generic> )*
+							$( <$expanded_modules_generic $(, $expanded_modules_instance)?> )*
 							$( ( $( $expanded_modules_args ),* ) )*
 					),*
 				},
@@ -136,7 +136,7 @@ macro_rules! construct_runtime {
 					::{
 						$(
 							$rest_modules
-								$( <$rest_modules_generic> )*
+								$( <$rest_modules_generic $(, $rest_modules_instance)?> )*
 								$( ( $( $rest_modules_args ),* ) )*
 						),*
 					}
@@ -154,7 +154,7 @@ macro_rules! construct_runtime {
 			$expanded_name:ident: $expanded_module:ident::{
 				$(
 					$expanded_modules:ident
-						$( <$expanded_modules_generic:ident> )*
+						$( <$expanded_modules_generic:ident $(, $expanded_modules_instance:path)?> )*
 						$( ( $( $expanded_modules_args:ident ),* ) )*
 				),*
 			}
@@ -163,7 +163,7 @@ macro_rules! construct_runtime {
 			default,
 			$(
 				$modules:ident
-					$( <$modules_generic:ident> )*
+					$( <$modules_generic:ident $(, $modules_instance:path)?> )*
 					$( ( $( $modules_args:ident ),* ) )*
 			),*
 		},
@@ -172,7 +172,7 @@ macro_rules! construct_runtime {
 				::{
 					$(
 						$rest_modules:ident
-							$( <$rest_modules_generic:ident> )*
+							$( <$rest_modules_generic:ident $(, $rest_modules_instance:path)?> )*
 							$( ( $( $rest_modules_args:ident ),* ) )*
 					),*
 				}
@@ -189,7 +189,7 @@ macro_rules! construct_runtime {
 				$expanded_name: $expanded_module::{
 					$(
 						$expanded_modules
-							$( <$expanded_modules_generic> )*
+							$( <$expanded_modules_generic $(, $expanded_modules_instance)?> )*
 							$( ( $( $expanded_modules_args ),* ) )*
 					),*
 				},
@@ -197,7 +197,8 @@ macro_rules! construct_runtime {
 			$name: $module::{
 				Module, Call, Storage, Event<T>, Config<T>,
 				$(
-					$modules $( <$modules_generic> )* $( ( $( $modules_args ),* ) )*
+					$modules $( <$modules_generic $(, $modules_instance)?> )*
+					$( ( $( $modules_args ),* ) )*
 				),*
 			};
 			$(
@@ -205,7 +206,7 @@ macro_rules! construct_runtime {
 					::{
 						$(
 							$rest_modules
-								$( <$rest_modules_generic> )*
+								$( <$rest_modules_generic $(, $rest_modules_instance)?> )*
 								$( ( $( $rest_modules_args ),* ) )*
 						),*
 					}
@@ -223,7 +224,7 @@ macro_rules! construct_runtime {
 			$expanded_name:ident: $expanded_module:ident::{
 				$(
 					$expanded_modules:ident
-						$( <$expanded_modules_generic:ident> )*
+						$( <$expanded_modules_generic:ident $(, $expanded_modules_instance:path)?> )*
 						$( ( $( $expanded_modules_args:ident ),* ) )*
 				),*
 			}
@@ -231,7 +232,7 @@ macro_rules! construct_runtime {
 		$name:ident: $module:ident::{
 			$(
 				$modules:ident
-					$( <$modules_generic:ident> )*
+					$( <$modules_generic:ident $(, $modules_instance:path)?> )*
 					$( ( $( $modules_args:ident ),* ) )*
 			),*
 		},
@@ -240,7 +241,7 @@ macro_rules! construct_runtime {
 				::{
 					$(
 						$rest_modules:ident
-							$( <$rest_modules_generic:ident> )*
+							$( <$rest_modules_generic:ident $(, $rest_modules_instance:path)?> )*
 							$( ( $( $rest_modules_args:ident ),* ) )*
 					),*
 				}
@@ -257,14 +258,15 @@ macro_rules! construct_runtime {
 				$expanded_name: $expanded_module::{
 					$(
 						$expanded_modules
-							$( <$expanded_modules_generic> )*
+							$( <$expanded_modules_generic $(, $expanded_modules_instance)?> )*
 							$( ( $( $expanded_modules_args ),* ) )*
 					),*
 				},
 			)*
 			$name: $module::{
 				$(
-					$modules $( <$modules_generic> )* $( ( $( $modules_args ),* ) )*
+					$modules $( <$modules_generic $(, $modules_instance)?> )*
+					$( ( $( $modules_args ),* ) )*
 				),*
 			};
 			$(
@@ -272,7 +274,7 @@ macro_rules! construct_runtime {
 					::{
 						$(
 							$rest_modules
-								$( <$rest_modules_generic> )*
+								$( <$rest_modules_generic $(, $rest_modules_instance)?> )*
 								$( ( $( $rest_modules_args ),* ) )*
 						),*
 					}
@@ -293,7 +295,7 @@ macro_rules! construct_runtime {
 			$name:ident: $module:ident::{
 				$(
 					$modules:ident
-						$( <$modules_generic:ident> )*
+						$( <$modules_generic:ident $(, $modules_instance:path)?> )*
 						$( ( $( $modules_args:ident ),* ) )*
 				),*
 			}
@@ -311,7 +313,7 @@ macro_rules! construct_runtime {
 		$crate::__decl_outer_event!(
 			$runtime;
 			$(
-				$name: $module::{ $( $modules $( <$modules_generic> )* ),* }
+				$name: $module::{ $( $modules $( <$modules_generic $(, $modules_instance)?> )* ),* }
 			),*
 		);
 		$crate::__decl_outer_origin!(
